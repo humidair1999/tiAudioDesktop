@@ -1,0 +1,71 @@
+.border-guides {
+  border: 0px solid #000000;
+}
+
+html,body {
+    margin: 0;
+    padding: 0;
+}
+
+#app { 
+	height: 100%;
+	display: -webkit-box;
+	/* we're using vertical because the footer and header have set heights, but the main content box doesn't */
+    -webkit-box-orient: vertical;
+	-webkit-box-align: stretch;
+}
+
+#header {
+	height: auto;
+	
+	padding: 4px;
+	
+	background: #333333;
+	
+	.border-guides;
+}
+
+#header_player {
+    float: left;
+}
+
+#header_folders {
+    float: right;
+}
+
+#main {
+	-webkit-box-flex: 1;
+	overflow-y: scroll;
+	
+	background: #333333;
+	
+	.border-guides;
+}
+
+#main ul {
+    width: 100%;
+    -webkit-padding-start: 0px;
+    list-style-type: disc;
+    margin: 0;
+}
+
+#main ul li:nth-child(2n+1) {
+    background: #484848;
+    font-size: 12px;
+    padding: 2px 0;
+}
+
+#main ul li:nth-child(2n+2) {
+    background: #333333;
+    font-size: 12px;
+    padding: 2px 0;
+}
+
+#main ul li a {
+    color: #ffffff;
+    text-decoration: none;
+}
+
+#main ul li a:hover {
+    color: #e1e1e1;
+}

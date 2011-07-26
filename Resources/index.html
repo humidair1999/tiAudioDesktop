@@ -1,0 +1,182 @@
+<html>
+<head>
+	
+    <title>TiAudio Desktop 0.1</title>
+	
+	<link rel="stylesheet/less" type="text/css" href="style.less">
+	<script src="js/less-1.1.3.min.js" type="text/javascript"></script>
+	
+	<script src="js/jquery-1.6.1.min.js" type="text/javascript"></script>
+	
+	<!-- todo: use JS ID3 tag library to determine ID3 tags from provided songs -->
+	<script src="js/binaryajax.js" type="text/javascript"></script>
+    <script src="js/id3.js" type="text/javascript"></script>
+	
+	<script>
+	    
+	    // enable variety of debugging options for Webkit console (which is what Titanium is based upon)
+	    console.log ("Show content:");
+	    console.warn ("Show warnings:");
+	    console.error ("Show errors:");
+	    
+	</script>
+	
+    <script>
+    
+        // pickMusicFolder allows the user to select a single directory. each file and subdirectory within this
+        // directory is then iterated over. if the current item is another directory, it's skipped. if the item is
+        // a file of any sort, it's appended to the #main ul DOM element in the form of a list item.
+        
+        // todo: files that are NOT mp3s should also be skipped over during iteration, and should not be appended
+        // todo: folder selection should really add files in subdirectories as well, rather than just top-level
+        // directories
+        function pickMusicFolder() {
+            var win = Titanium.UI.getCurrentWindow();
+
+            win.openFolderChooserDialog(function(folderResponse) {
+                var file = Titanium.Filesystem.getFile(folderResponse[0]);
+                var listing = file.getDirectoryListing();
+                for (var i = 0; i < listing.length; i++) {
+                    if (listing[i].isDirectory()) {
+                        continue;
+                    }
+                    else {
+                        var songOnList = listing[i].nativePath();
+                        // todo: folder.jpg album art icons are pointing to correct filesystem path but still not
+                        // showing up in UI properly
+                        var iconOnList = file + "\\folder.jpg";
+                        var iconURL = iconOnList.replace(/\\/g,"/");
+                        var songURL = songOnList.replace(/\\/g,"/");
+                        // todo: add in ID3 reading for MP3 tags mentioned in html head
+                        var songID3 = ID3.getTag(songURL, "title");
+                        $('#main ul').append('<li><img src="' + iconURL + '" /><a href="javascript:playSong(\'' + songURL + '\')">' + songURL + '</a></li>');
+                    }
+                }
+            });
+        };
+        
+        var stopPlayback = function() {
+            // defined now; used via closure in playSong function
+        };
+        
+        var pausePlayback = function() {
+            // defined now; used via closure in playSong function
+        };
+
+        // playSong is where all of the playback functions reside. this is because each function (playing, 
+        // pausing, stopping) are all handled in relation to or in response to playback. 
+        var playSong = function(songURL) {
+            var currentSong = Titanium.Media.createSound(songURL);
+            currentSong.play();
+            
+            // this inner jQuery handler uses a click handler to check if a song is already playing. if it is,
+            // the song is stopped, in essence re-readying the playSong function to play a new song. if it's not
+            // already playing, a new song can be started.
+            $('#main ul li').click(function() {
+                if (currentSong.isPlaying()) {
+                    currentSong.stop();
+                    return false;
+                }
+            });
+            
+            // notifySong creates a Titanium notification to display the currently playing song on the user's
+            // desktop. ideally, this would show the album art, as well as information from the ID3 tag.
+            var notifySong = Titanium.Notification.createNotification();
+            notifySong.setTitle("Current song playing:");
+            notifySong.setMessage(songURL);
+            notifySong.show();
+
+            // this allows the currently playing song to stop entirely
+            stopPlayback = function() {
+                currentSong.stop();
+            }
+            
+            // this allows the currently playing song to pause/play at its current position
+            pausePlayback = function() {
+                if (currentSong.isPlaying ()) {
+                    currentSong.pause();
+                }
+                else {
+                    currentSong.play();
+                }
+            }
+        }
+	
+	</script>
+	
+	<script>
+	
+	    // this chunk of code creates the menu items within Titanium's UI chrome.
+	    var menu = Titanium.UI.createMenu();
+	    
+	    var file = menu.addItem("File");
+        var help = menu.addItem("Help");
+        file.addItem("Open", function () { alert('Perform a file open');});
+        file.addSeparatorItem();
+        file.addItem("Exit", function () { Titanium.App.exit(); });
+
+        help.addItem("About", function () { alert('Show about info box');  });
+       
+        Titanium.UI.setMenu(menu);
+	    
+	</script>
+	
+</head>
+<body>
+    
+    <div id="app">
+        
+        <div id="header">
+            
+            <div id="header_player">
+                <input type="image" src="img/player_pause.png" id="pausePlayback" />
+                <input type="image" src="img/player_stop.png" id="stopPlayback" />
+            </div>
+            
+            <div id="header_folders">
+                <input type="image" src="img/folder_add.png" id="pickMusicFolder" />
+                <input type="image" src="img/folder_delete.png" id="removeMusicFolder" />
+                
+                <!-- todo: use green/red circular images to display network connectivity state -->
+                <input type="image" src="img/circle_green.png" id="netConnected" />
+            </div>
+
+        </div>
+			
+        <div id="main">
+            <ul>
+                
+            </ul>
+        </div>
+		
+	</div>
+	
+<script>
+    
+    // these functions, all handled by jQuery, perform the aforementioned functions specified in
+    // the program. onClick handlers could also be used here, but i made special efforts to keep
+    // all javascript code compartmentalized from the html.
+    $('#pausePlayback').click(function() {
+        pausePlayback();
+        return false;
+    });
+    
+    $('#stopPlayback').click(function() {
+        stopPlayback();
+        return false;
+    });
+    
+    $('#pickMusicFolder').click(function() {
+        pickMusicFolder();
+        return false;
+    });
+    
+    $('#removeMusicFolder').click(function() {
+        $('#main ul').empty();
+        return false;
+    });
+    
+</script>
+	
+</body>
+</html>

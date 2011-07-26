@@ -1,0 +1,10 @@
+This is a simple audio player coded entirely in Javascript and intended for the Titanium platform. Once you've run it through Titanium, it should, in theory, be totally cross-platform.
+
+I opted not to use HTML5 audio features simply as a proof-of-concept. You should find an HTML5-centric audio player for Titanium in my Github in the (relatively) near future, if it's not already there.
+
+The code is quite straightforward; Titanium's API is used for filesystem traversing and audio handling. jQuery is used for the UI, as well as Titanium's UI API features, including a menu bar and popup notifications.
+
+By all means, use it in any way you see fit! Enjoy!
+
+- J. Ky Marsh
+http://twitter.com/jkymarsh
